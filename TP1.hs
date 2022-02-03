@@ -13,7 +13,7 @@ class Punto p where
   dimension :: p -> Int       -- devuelve el número de coordenadas de un punto
   coord :: Int -> p -> Double -- devuelve la coordenada k-ésima de un punto (comenzando de 0)
   dist :: p -> p -> Double    -- calcula la distancia entre dos puntos
-  dist p q = sum [(coord i p - coord i q)^2 | i <- [0..((dimension p) - 1)]] 
+  dist p q = sum [(coord i p - coord i q)^2 | i <- [0..(dimension p - 1)]]
 
 newtype Punto2d = P2d (Double, Double) deriving (Eq, Show)
 newtype Punto3d = P3d (Double, Double, Double) deriving (Eq, Show)
@@ -34,7 +34,7 @@ instance Punto Punto3d where
 -- Lista de puntos del ejemplo en el enunciado
 listaP = [P2d(2,3), P2d(5,4), P2d(9,6),P2d(4,7), P2d(8,1), P2d(7,2){-, P2d(7,10), P2d(7,0), P2d(7,-5), P2d(1,10), P2d(3,5), P2d(6,8)-}]
 
-arbol = insertar (P2d(7,2)) Empty 
+arbol = insertar (P2d(7,2)) Empty
 arbol1 = insertar (P2d(5,4)) arbol
 arbol2 = insertar (P2d(9,6)) arbol1
 arbol3 = insertar (P2d(8,1)) arbol2
@@ -48,7 +48,7 @@ treeDerecho (Node  _ _ der _) = der
 treeIzquierdo :: NdTree p -> NdTree p
 treeIzquierdo (Node izq _ _ _) = izq
 
-treePunto :: (Punto p) => NdTree p -> p  
+treePunto :: (Punto p) => NdTree p -> p
 treePunto (Node _ p _ _) = p
 
 treeEje :: NdTree p -> Int
@@ -58,13 +58,13 @@ treeEje (Node _ _ _ eje) = eje
 mergePunto :: Punto p => Int -> [p] -> [p] -> [p]
 mergePunto k [] ys = ys
 mergePunto k xs [] = xs
-mergePunto k (x:xs) (y:ys) = if coord k x <= coord k y then (x:mergePunto k xs (y:ys))
-                                                             else (y:mergePunto k (x:xs) ys)
+mergePunto k (x:xs) (y:ys) = if coord k x <= coord k y then x:mergePunto k xs (y:ys)
+                                                             else y:mergePunto k (x:xs) ys
 
 split :: Punto p => [p] -> ([p], [p])
 split [] = ([], [])
 split [x] = ([x], [])
-split (x:y:zs) = let (xs, ys) = split zs in (x:xs, y:ys) 
+split (x:y:zs) = let (xs, ys) = split zs in (x:xs, y:ys)
 
 msortPunto :: Punto p => [p] -> Int -> [p]
 msortPunto [] k = []
@@ -98,7 +98,7 @@ fromListLevel ps nivel = let eje = mod nivel (dimension (head ps))
                              puntoM = listaOrd !! trueMedianaInd                -- Punto mediana
                              izqNodo = fromListLevel izqPuntos (nivel+1)
                              derNode = fromListLevel derPuntos (nivel+1)
-                             in Node izqNodo puntoM derNode eje                       
+                             in Node izqNodo puntoM derNode eje
 
 -- -- A partir de una lista de Puntos, construye un NdTree desde 0
 fromList :: Punto p => [p] -> NdTree p
@@ -127,11 +127,11 @@ treeToList (Node izq punto der eje) = treeToList izq ++ [punto] ++ treeToList de
 -- Devuelve el punto con que posee la coordenada minima del eje correspondiente
 buscarMinimo :: (Punto p) => NdTree p -> Int -> p
 buscarMinimo (Node Empty p Empty _) _ = p
-buscarMinimo (Node izq p Empty eje) ejeBusqueda = if eje == ejeBusqueda then (buscarMinimo izq ejeBusqueda) 
+buscarMinimo (Node izq p Empty eje) ejeBusqueda = if eje == ejeBusqueda then (buscarMinimo izq ejeBusqueda)
                                                   else  min2 p (buscarMinimo izq ejeBusqueda) ejeBusqueda
-buscarMinimo (Node Empty p der eje) ejeBusqueda = if eje == ejeBusqueda then p 
+buscarMinimo (Node Empty p der eje) ejeBusqueda = if eje == ejeBusqueda then p
                                                   else min2 p (buscarMinimo der ejeBusqueda) ejeBusqueda
-buscarMinimo (Node izq p der eje) ejeBusqueda = if eje == ejeBusqueda then min2 p (buscarMinimo izq ejeBusqueda) ejeBusqueda 
+buscarMinimo (Node izq p der eje) ejeBusqueda = if eje == ejeBusqueda then min2 p (buscarMinimo izq ejeBusqueda) ejeBusqueda
                                                 else min3 p (buscarMinimo izq ejeBusqueda)  (buscarMinimo der ejeBusqueda) ejeBusqueda
 
 min2 :: Punto p => p -> p -> Int -> p
@@ -145,11 +145,11 @@ min3 p q r eje = min2 p (min2 q r eje) eje
 
 buscarMaximo :: (Punto p) => NdTree p -> Int -> p
 buscarMaximo (Node Empty p Empty _) _ = p
-buscarMaximo (Node izq p Empty eje) ejeBusqueda = if eje == ejeBusqueda then p 
+buscarMaximo (Node izq p Empty eje) ejeBusqueda = if eje == ejeBusqueda then p
                                                   else max2 p (buscarMaximo izq ejeBusqueda) ejeBusqueda
-buscarMaximo (Node Empty p der eje) ejeBusqueda = if eje == ejeBusqueda then (buscarMaximo der ejeBusqueda) 
+buscarMaximo (Node Empty p der eje) ejeBusqueda = if eje == ejeBusqueda then (buscarMaximo der ejeBusqueda)
                                                   else max2 p (buscarMaximo der ejeBusqueda) ejeBusqueda
-buscarMaximo (Node izq p der eje) ejeBusqueda = if eje == ejeBusqueda then max2 p (buscarMaximo der ejeBusqueda) ejeBusqueda 
+buscarMaximo (Node izq p der eje) ejeBusqueda = if eje == ejeBusqueda then max2 p (buscarMaximo der ejeBusqueda) ejeBusqueda
                                                 else max3 p (buscarMaximo izq ejeBusqueda)  (buscarMaximo der ejeBusqueda) ejeBusqueda
 
 max2 :: Punto p => p -> p -> Int -> p
@@ -160,20 +160,20 @@ max3 p q r eje = max2 p (max2 q r eje) eje
 
 
 -- Reemplaza la raiz de un arbol
-reemplazar :: (Eq p, Punto p) => NdTree p -> NdTree p 
-reemplazar (Node izq _ der eje) = if der /= Empty 
-                                  then let reemplazo = (buscarMinimo der eje) 
+reemplazar :: (Eq p, Punto p) => NdTree p -> NdTree p
+reemplazar (Node izq _ der eje) = if der /= Empty
+                                  then let reemplazo = (buscarMinimo der eje)
                                        in (Node izq reemplazo (eliminar reemplazo der) eje)
-                                  else let reemplazo = (buscarMaximo izq eje) 
+                                  else let reemplazo = (buscarMaximo izq eje)
                                        in (Node (eliminar reemplazo izq) reemplazo der eje)
 
 -- Elimina un punto de un conjunto de Puntos.
 eliminar :: (Eq p, Punto p) => p -> NdTree p -> NdTree p
 eliminar p Empty = Empty
-eliminar p (Node Empty q Empty eje) = if p == q then Empty else (Node Empty q Empty eje)
+eliminar p (Node Empty q Empty eje) = if p == q then Empty else Node Empty q Empty eje
 eliminar p (Node izq q der eje) | p == q = reemplazar (Node izq q der eje) -- Reemplazos la raiz con el punto correspondiente
-                                | coord eje p <= coord eje q = (Node (eliminar p izq) q der eje)
-                                | otherwise = (Node izq q (eliminar p der) eje)
+                                | coord eje p <= coord eje q = Node (eliminar p izq) q der eje
+                                | otherwise = Node izq q (eliminar p der) eje
 
 
 -- Apartado 5)
@@ -182,7 +182,7 @@ type Rect = (Punto2d,Punto2d)
 
 -- Determina si un punto se encuentra dentro de un rectangulo
 inRegion :: Punto2d -> Rect -> Bool
-inRegion (P2d(x,y)) (P2d(x1,y1),P2d(x2,y2)) = x >= (min x1 x2) && x <= (max x1 x2) && y >= (min y1 y2) && y <= (max y1 y2)
+inRegion (P2d(x,y)) (P2d(x1,y1),P2d(x2,y2)) = x >= min x1 x2 && x <= max x1 x2 && y >= min y1 y2 && y <= max y1 y2
                                           -- Region delimitada por las coordenadas x / Region delimitada por las coordenadas y
 
 -- Compara coordenadas de dos puntos dado un eje, devuelve True si el primero es estrictamente mas grande que el segundo
@@ -196,10 +196,10 @@ lowHigh (P2d(x1,y1),P2d(x2,y2)) = (P2d(min x1 x2, min y1 y2), P2d(max x1 x2, max
 -- Dado un conjunto de Puntos y un rectangulo en forma (min,max), devuelve la lista de puntos que estan dentro del rectangulo.
 ortogonalSearchR :: NdTree Punto2d -> Rect -> [Punto2d]
 ortogonalSearchR Empty _ = []
-ortogonalSearchR (Node Empty p Empty _) rect = if inRegion p rect then [p] else []
+ortogonalSearchR (Node Empty p Empty _) rect = [p | inRegion p rect]
 ortogonalSearchR (Node izq p der eje) (min,max) = let izqPuntos = if greater eje min p then [] else ortogonalSearchR izq (min,max)
                                                       derPuntos = if greater eje max p then ortogonalSearchR der (min,max) else []
-                                                  in izqPuntos ++ (if inRegion p (min,max) then [p] else []) ++ derPuntos
+                                                  in izqPuntos ++ ([p | inRegion p (min,max)]) ++ derPuntos
 
 -- Configura el rectangulo en forma (min, max), luego llama a ortogonalSearchR
 ortogonalSearch :: NdTree Punto2d -> Rect -> [Punto2d]
